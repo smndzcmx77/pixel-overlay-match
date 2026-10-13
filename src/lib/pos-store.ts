@@ -196,5 +196,24 @@ export function pagarOrden(s: POSState, ordenId: string, metodo: "efectivo" | "t
   };
 }
 
+/**
+ * Toast a warning for every tracked product that just reached or dropped
+ * below its reorder minimum between `prev` and `next` (avoids repeat alerts).
+ */
+export function avisarBajos(prev: POSState, next: POSState, warn: (msg: string) => void) {
+  const antes = new Map(prev.productos.map((p) => [p.id, p.disponible]));
+  for (const p of next.productos) {
+    if (!p.rastrearInventario) continue;
+    const prevDisp = antes.get(p.id) ?? p.disponible;
+    if (p.disponible <= p.minimoReorden && prevDisp > p.minimoReorden) {
+      warn(
+        p.disponible <= 0
+          ? `¡"${p.nombre}" se agotó! (mínimo: ${p.minimoReorden} ${p.unidadMedida})`
+          : `"${p.nombre}" llegó a su mínimo de reorden: ${p.disponible} ${p.unidadMedida} (mínimo: ${p.minimoReorden})`,
+      );
+    }
+  }
+}
+
 export const money = (n: number) =>
   n.toLocaleString("es-MX", { style: "currency", currency: "MXN" });
