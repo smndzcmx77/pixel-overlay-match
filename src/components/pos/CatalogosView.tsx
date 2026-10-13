@@ -168,7 +168,7 @@ function Recetas({ state, update }: Props) {
   return (
     <div className="space-y-3">
       <div className="flex justify-end">
-        <Btn disabled={!sinReceta.length} onClick={() => { setIsNew(true); setForm({ productoId: sinReceta[0].id, cantidad: 1, unidades: "Unidades", tipo: "Fabricar producto", ingredientes: [] }); }}>
+        <Btn disabled={!sinReceta.length} onClick={() => { setIsNew(true); setForm({ productoId: sinReceta[0]?.id ?? "", cantidad: 1, unidades: "Unidades", tipo: "Fabricar producto", ingredientes: [] }); }}>
           <Plus className="size-4" />Nueva lista
         </Btn>
       </div>
