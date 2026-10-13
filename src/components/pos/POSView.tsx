@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { money, pagarOrden, uid, type Alimento, type Orden, type POSState } from "@/lib/pos-store";
+import { avisarBajos, money, pagarOrden, uid, type Alimento, type Orden, type POSState } from "@/lib/pos-store";
 import { cn } from "@/lib/utils";
 import { Btn, Card, Field, Select } from "./ui";
 import { PagoModal } from "./PagoModal";
@@ -163,8 +163,10 @@ export function POSView({ state, update }: Props) {
           orden={pago}
           onClose={() => setPago(null)}
           onConfirm={(m) => {
-            update((s) => pagarOrden(s, pago.id, m));
+            const next = pagarOrden(state, pago.id, m);
+            update(() => next);
             toast.success(`Orden #${pago.noOrden} pagada`);
+            avisarBajos(state, next, (msg) => toast.warning(msg, { duration: 8000 }));
             setPago(null);
           }}
         />
