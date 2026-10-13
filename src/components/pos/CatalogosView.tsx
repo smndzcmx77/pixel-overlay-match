@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ChangeEvent } from "react";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { UNIDADES, uid, money, type POSState, type Producto, type Receta, type Unidad } from "@/lib/pos-store";
 import { cn } from "@/lib/utils";
@@ -78,7 +78,7 @@ function Productos({ state, update }: Props) {
     );
     setForm(null);
   };
-  const num = (k: keyof Producto) => (e: React.ChangeEvent<HTMLInputElement>) => setForm((f) => f && { ...f, [k]: parseFloat(e.target.value) || 0 });
+  const num = (k: keyof Producto) => (e: ChangeEvent<HTMLInputElement>) => setForm((f) => f && { ...f, [k]: parseFloat(e.target.value) || 0 });
 
   return (
     <Card className="overflow-x-auto">
