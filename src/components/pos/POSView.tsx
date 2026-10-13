@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { money, pagarOrden, uid, type Alimento, type Orden, type POSState } from "@/lib/pos-store";
+import { avisarBajos, money, pagarOrden, uid, type Alimento, type Orden, type POSState } from "@/lib/pos-store";
 import { cn } from "@/lib/utils";
 import { Btn, Card, Field, Select } from "./ui";
 import { PagoModal } from "./PagoModal";

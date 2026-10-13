@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { money, pagarOrden, type Orden, type POSState } from "@/lib/pos-store";
+import { avisarBajos, money, pagarOrden, type Orden, type POSState } from "@/lib/pos-store";
 import { Btn, Card, EstadoBadge } from "./ui";
 import { PagoModal } from "./PagoModal";
 
