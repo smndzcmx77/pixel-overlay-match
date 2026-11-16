@@ -10,3 +10,4 @@
 <!-- LOVABLE:END -->
 
 - Keep Lovable AI Gateway calls in server request handlers and stream OpenAI Responses through the AI SDK so credentials stay private and long answers remain responsive.
+- Store POS state in the normalized Supabase `pos_*` tables and save UI changes through `sync_pos_state` so related writes and inventory deductions commit atomically; keep localStorage only for the one-time legacy import.
