@@ -13,6 +13,7 @@
 
 - [x] Crear perfiles con nombre y puesto, cuentas pendientes y rol de encargado.
 - [x] Proteger las siete tablas del POS para que solo el personal aprobado pueda operarlas.
-- [ ] Añadir registro, inicio/cierre de sesión y pantalla de cuenta pendiente.
-- [ ] Añadir aprobación de cuentas desde el área Personal del encargado.
-- [ ] Probar reglas de permisos, rutas y acceso público sin sesión.
+- [x] Añadir registro, inicio/cierre de sesión y pantalla de cuenta pendiente.
+- [x] Añadir aprobación de cuentas desde el área Personal del encargado.
+- [x] Probar reglas de permisos, rutas y acceso público sin sesión.
+- [ ] Registrar la primera cuenta y designarla como encargado en Supabase; requiere el correo y la acción del usuario.
