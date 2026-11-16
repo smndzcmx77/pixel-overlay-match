@@ -1,15 +1,37 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { avisarBajos, money, pagarOrden, type Orden, type POSState } from "@/lib/pos-store";
+import { avisarBajos, money, pagarOrden, type Orden, type POSState, type UpdatePOS } from "@/lib/pos-store";
 import { Btn, Card, EstadoBadge } from "./ui";
 import { PagoModal } from "./PagoModal";
 
-type Props = { state: POSState; update: (fn: (s: POSState) => POSState) => void; kds?: boolean };
+type Props = { state: POSState; update: UpdatePOS; kds?: boolean };
 
 export function OrdenesView({ state, update, kds }: Props) {
   const [pago, setPago] = useState<Orden | null>(null);
   const nombre = (id: string) => state.productos.find((p) => p.id === id)?.nombre ?? "—";
   const ordenes = kds ? state.ordenes.filter((o) => o.estado === "Pendiente Cocina") : state.ordenes;
+
+  const marcarLista = async (orden: Orden) => {
+    try {
+      await update((s) => ({ ...s, ordenes: s.ordenes.map((x) => (x.id === orden.id ? { ...x, estado: "Lista" } : x)) }));
+      toast.success(`Orden #${orden.noOrden} lista`);
+    } catch (cause) {
+      toast.error(cause instanceof Error ? cause.message : "No se pudo actualizar la orden.");
+    }
+  };
+
+  const confirmarPago = async (metodo: "efectivo" | "tarjeta") => {
+    if (!pago) return;
+    try {
+      const next = pagarOrden(state, pago.id, metodo);
+      await update(() => next);
+      toast.success(`Orden #${pago.noOrden} pagada y guardada`);
+      avisarBajos(state, next, (msg) => toast.warning(msg, { duration: 8000 }));
+      setPago(null);
+    } catch (cause) {
+      toast.error(cause instanceof Error ? cause.message : "No se pudo guardar el pago.");
+    }
+  };
 
   if (!ordenes.length)
     return <p className="py-16 text-center text-muted-foreground">{kds ? "No hay comandas pendientes 🎉" : "Aún no hay órdenes."}</p>;
@@ -48,11 +70,7 @@ export function OrdenesView({ state, update, kds }: Props) {
           )}
           <div className="mt-3 flex gap-2">
             {o.estado === "Pendiente Cocina" && (
-              <Btn
-                variant={kds ? "success" : "outline"}
-                className="flex-1"
-                onClick={() => update((s) => ({ ...s, ordenes: s.ordenes.map((x) => (x.id === o.id ? { ...x, estado: "Lista" } : x)) }))}
-              >
+              <Btn variant={kds ? "success" : "outline"} className="flex-1" onClick={() => void marcarLista(o)}>
                 Marcar como Lista
               </Btn>
             )}
@@ -62,19 +80,7 @@ export function OrdenesView({ state, update, kds }: Props) {
           </div>
         </Card>
       ))}
-      {pago && (
-        <PagoModal
-          orden={pago}
-          onClose={() => setPago(null)}
-          onConfirm={(m) => {
-            const next = pagarOrden(state, pago.id, m);
-            update(() => next);
-            toast.success(`Orden #${pago.noOrden} pagada`);
-            avisarBajos(state, next, (msg) => toast.warning(msg, { duration: 8000 }));
-            setPago(null);
-          }}
-        />
-      )}
+      {pago && <PagoModal orden={pago} onClose={() => setPago(null)} onConfirm={confirmarPago} />}
     </div>
   );
 }
