@@ -8,3 +8,11 @@
 # Asistente de IA
 
 - [x] Eliminar la pantalla "Asistente del encargado" y todo uso de AI Gateway.
+
+# Acceso del personal
+
+- [x] Crear perfiles con nombre y puesto, cuentas pendientes y rol de encargado.
+- [x] Proteger las siete tablas del POS para que solo el personal aprobado pueda operarlas.
+- [ ] Añadir registro, inicio/cierre de sesión y pantalla de cuenta pendiente.
+- [ ] Añadir aprobación de cuentas desde el área Personal del encargado.
+- [ ] Probar reglas de permisos, rutas y acceso público sin sesión.

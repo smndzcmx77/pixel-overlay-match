@@ -11,3 +11,4 @@
 
 - Keep this app free of AI Gateway and external AI model calls: the sales-inventory assistant was removed at the user's request, so POS features must compute results locally from Supabase data instead of calling a model.
 - Store POS state in the normalized Supabase `pos_*` tables and save UI changes through `sync_pos_state` so related writes and inventory deductions commit atomically; keep localStorage only for the one-time legacy import.
+- Require Supabase Auth and an approved profile for every POS surface and table; keep manager roles in `user_roles`, authorization helpers outside the exposed API schema, and recheck manager permissions server-side before any privileged profile update.
