@@ -14,13 +14,318 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      pos_categorias: {
+        Row: {
+          created_at: string
+          id: string
+          nombre: string
+          posicion: number
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          nombre: string
+          posicion?: number
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nombre?: string
+          posicion?: number
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pos_categorias_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "pos_workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pos_orden_alimentos: {
+        Row: {
+          cantidad: number
+          created_at: string
+          orden_id: string
+          precio_total: number
+          precio_unitario: number
+          producto_id: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          cantidad?: number
+          created_at?: string
+          orden_id: string
+          precio_total?: number
+          precio_unitario?: number
+          producto_id: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          cantidad?: number
+          created_at?: string
+          orden_id?: string
+          precio_total?: number
+          precio_unitario?: number
+          producto_id?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pos_orden_alimentos_workspace_id_orden_id_fkey"
+            columns: ["workspace_id", "orden_id"]
+            isOneToOne: false
+            referencedRelation: "pos_ordenes"
+            referencedColumns: ["workspace_id", "id"]
+          },
+        ]
+      }
+      pos_ordenes: {
+        Row: {
+          created_at: string
+          estado: string
+          fecha: string
+          id: string
+          mesa: number
+          mesero: string
+          metodo_pago: string | null
+          no_orden: number
+          para_llevar: boolean
+          posicion: number
+          total: number
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          estado?: string
+          fecha: string
+          id: string
+          mesa?: number
+          mesero?: string
+          metodo_pago?: string | null
+          no_orden: number
+          para_llevar?: boolean
+          posicion?: number
+          total?: number
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          estado?: string
+          fecha?: string
+          id?: string
+          mesa?: number
+          mesero?: string
+          metodo_pago?: string | null
+          no_orden?: number
+          para_llevar?: boolean
+          posicion?: number
+          total?: number
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pos_ordenes_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "pos_workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pos_productos: {
+        Row: {
+          categoria_id: string
+          compra: boolean
+          created_at: string
+          disponible: number
+          id: string
+          minimo_reorden: number
+          nombre: string
+          pos: boolean
+          posicion: number
+          precio: number
+          rastrear_inventario: boolean
+          unidad_medida: string
+          updated_at: string
+          ventas: boolean
+          workspace_id: string
+        }
+        Insert: {
+          categoria_id?: string
+          compra?: boolean
+          created_at?: string
+          disponible?: number
+          id: string
+          minimo_reorden?: number
+          nombre: string
+          pos?: boolean
+          posicion?: number
+          precio?: number
+          rastrear_inventario?: boolean
+          unidad_medida?: string
+          updated_at?: string
+          ventas?: boolean
+          workspace_id: string
+        }
+        Update: {
+          categoria_id?: string
+          compra?: boolean
+          created_at?: string
+          disponible?: number
+          id?: string
+          minimo_reorden?: number
+          nombre?: string
+          pos?: boolean
+          posicion?: number
+          precio?: number
+          rastrear_inventario?: boolean
+          unidad_medida?: string
+          updated_at?: string
+          ventas?: boolean
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pos_productos_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "pos_workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pos_receta_ingredientes: {
+        Row: {
+          cantidad: number
+          componente_producto_id: string
+          created_at: string
+          posicion: number
+          producto_id: string
+          unidad_medida: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          cantidad?: number
+          componente_producto_id: string
+          created_at?: string
+          posicion: number
+          producto_id: string
+          unidad_medida?: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          cantidad?: number
+          componente_producto_id?: string
+          created_at?: string
+          posicion?: number
+          producto_id?: string
+          unidad_medida?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pos_receta_ingredientes_workspace_id_producto_id_fkey"
+            columns: ["workspace_id", "producto_id"]
+            isOneToOne: false
+            referencedRelation: "pos_recetas"
+            referencedColumns: ["workspace_id", "producto_id"]
+          },
+        ]
+      }
+      pos_recetas: {
+        Row: {
+          cantidad: number
+          created_at: string
+          posicion: number
+          producto_id: string
+          tipo: string
+          unidades: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          cantidad?: number
+          created_at?: string
+          posicion?: number
+          producto_id: string
+          tipo?: string
+          unidades?: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          cantidad?: number
+          created_at?: string
+          posicion?: number
+          producto_id?: string
+          tipo?: string
+          unidades?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pos_recetas_workspace_id_producto_id_fkey"
+            columns: ["workspace_id", "producto_id"]
+            isOneToOne: true
+            referencedRelation: "pos_productos"
+            referencedColumns: ["workspace_id", "id"]
+          },
+        ]
+      }
+      pos_workspaces: {
+        Row: {
+          created_at: string
+          id: string
+          nombre: string
+          revision: number
+          siguiente_no_orden: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          nombre: string
+          revision?: number
+          siguiente_no_orden?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nombre?: string
+          revision?: number
+          siguiente_no_orden?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      sync_pos_state: {
+        Args: { p_expected_revision: number; p_state: Json }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never
