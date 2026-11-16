@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { ChefHat, ClipboardList, LayoutGrid, Package, RotateCcw } from "lucide-react";
+import { ChefHat, ClipboardList, LayoutGrid, Package, RotateCcw, Sparkles } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 import { seed, usePOS } from "@/lib/pos-store";
 import { cn } from "@/lib/utils";
 import { POSView } from "@/components/pos/POSView";
 import { OrdenesView } from "@/components/pos/OrdenesView";
 import { CatalogosView } from "@/components/pos/CatalogosView";
+import { AsistenteView } from "@/components/pos/AsistenteView";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -26,6 +27,7 @@ const TABS = [
   { id: "pos", label: "POS", icon: LayoutGrid },
   { id: "ordenes", label: "Órdenes", icon: ClipboardList },
   { id: "catalogos", label: "Catálogos", icon: Package },
+  { id: "asistente", label: "Asistente", icon: Sparkles },
   { id: "kds", label: "Cocina", icon: ChefHat },
 ] as const;
 
@@ -78,6 +80,8 @@ function Index() {
           <OrdenesView state={state} update={update} />
         ) : tab === "catalogos" ? (
           <CatalogosView state={state} update={update} />
+        ) : tab === "asistente" ? (
+          <AsistenteView state={state} />
         ) : (
           <OrdenesView state={state} update={update} kds />
         )}
