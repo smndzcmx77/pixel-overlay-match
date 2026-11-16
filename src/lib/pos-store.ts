@@ -1,4 +1,3 @@
-import { useEffect, useState, useCallback } from "react";
 import { enviarAlertaStock } from "@/lib/stock-alert.functions";
 
 export const UNIDADES = ["g", "oz", "lb", "kg", "t", "L", "m³", "gal", "fl oz", "Unidades"] as const;
@@ -145,30 +144,7 @@ export const seed = (): POSState => ({
   siguienteNoOrden: 1,
 });
 
-const KEY = "chilaqueria-pos-v1";
-
-export function usePOS() {
-  const [state, setState] = useState<POSState | null>(null);
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(KEY);
-      setState(raw ? JSON.parse(raw) : seed());
-    } catch {
-      setState(seed());
-    }
-  }, []);
-
-  useEffect(() => {
-    if (state) localStorage.setItem(KEY, JSON.stringify(state));
-  }, [state]);
-
-  const update = useCallback((fn: (s: POSState) => POSState) => {
-    setState((s) => (s ? fn(s) : s));
-  }, []);
-
-  return { state, update };
-}
+export type UpdatePOS = (fn: (s: POSState) => POSState) => Promise<void>;
 
 /** Pays an order and deducts stock following BOM rules. */
 export function pagarOrden(s: POSState, ordenId: string, metodo: "efectivo" | "tarjeta"): POSState {

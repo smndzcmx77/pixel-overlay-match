@@ -180,7 +180,7 @@ export function AsistenteView({ state }: Props) {
           </div>
         </form>
         <p className="text-xs text-muted-foreground">
-          Se analizan órdenes pagadas, existencias, mínimos de reorden y recetas guardados en este navegador.
+          Se analizan órdenes pagadas, existencias, mínimos de reorden y recetas guardados en Supabase.
         </p>
       </Card>
 
