@@ -10,33 +10,94 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedAprobadoRouteRouteImport } from './routes/_authenticated/_aprobado/route'
+import { Route as AuthenticatedPendienteRouteImport } from './routes/_authenticated/pendiente'
+import { Route as AuthenticatedAprobadoPersonalRouteImport } from './routes/_authenticated/_aprobado/personal'
+import { Route as AuthenticatedAprobadoPosRouteImport } from './routes/_authenticated/_aprobado/pos'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAprobadoRouteRoute =
+  AuthenticatedAprobadoRouteRouteImport.update({
+    id: '/_aprobado',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPendienteRoute = AuthenticatedPendienteRouteImport.update({
+  id: '/pendiente',
+  path: '/pendiente',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAprobadoPersonalRoute =
+  AuthenticatedAprobadoPersonalRouteImport.update({
+    id: '/personal',
+    path: '/personal',
+    getParentRoute: () => AuthenticatedAprobadoRouteRoute,
+  } as any)
+const AuthenticatedAprobadoPosRoute =
+  AuthenticatedAprobadoPosRouteImport.update({
+    id: '/pos',
+    path: '/pos',
+    getParentRoute: () => AuthenticatedAprobadoRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/pendiente': typeof AuthenticatedPendienteRoute
+  '/personal': typeof AuthenticatedAprobadoPersonalRoute
+  '/pos': typeof AuthenticatedAprobadoPosRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/pendiente': typeof AuthenticatedPendienteRoute
+  '/personal': typeof AuthenticatedAprobadoPersonalRoute
+  '/pos': typeof AuthenticatedAprobadoPosRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/_aprobado': typeof AuthenticatedAprobadoRouteRouteWithChildren
+  '/_authenticated/pendiente': typeof AuthenticatedPendienteRoute
+  '/_authenticated/_aprobado/personal': typeof AuthenticatedAprobadoPersonalRoute
+  '/_authenticated/_aprobado/pos': typeof AuthenticatedAprobadoPosRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/auth' | '/pendiente' | '/personal' | '/pos'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/auth' | '/pendiente' | '/personal' | '/pos'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/_aprobado'
+    | '/_authenticated/pendiente'
+    | '/_authenticated/_aprobado/personal'
+    | '/_authenticated/_aprobado/pos'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +109,84 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/_aprobado': {
+      id: '/_authenticated/_aprobado'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedAprobadoRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/pendiente': {
+      id: '/_authenticated/pendiente'
+      path: '/pendiente'
+      fullPath: '/pendiente'
+      preLoaderRoute: typeof AuthenticatedPendienteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/_aprobado/personal': {
+      id: '/_authenticated/_aprobado/personal'
+      path: '/personal'
+      fullPath: '/personal'
+      preLoaderRoute: typeof AuthenticatedAprobadoPersonalRouteImport
+      parentRoute: typeof AuthenticatedAprobadoRouteRoute
+    }
+    '/_authenticated/_aprobado/pos': {
+      id: '/_authenticated/_aprobado/pos'
+      path: '/pos'
+      fullPath: '/pos'
+      preLoaderRoute: typeof AuthenticatedAprobadoPosRouteImport
+      parentRoute: typeof AuthenticatedAprobadoRouteRoute
+    }
   }
 }
 
+interface AuthenticatedAprobadoRouteRouteChildren {
+  AuthenticatedAprobadoPersonalRoute: typeof AuthenticatedAprobadoPersonalRoute
+  AuthenticatedAprobadoPosRoute: typeof AuthenticatedAprobadoPosRoute
+}
+
+const AuthenticatedAprobadoRouteRouteChildren: AuthenticatedAprobadoRouteRouteChildren =
+  {
+    AuthenticatedAprobadoPersonalRoute: AuthenticatedAprobadoPersonalRoute,
+    AuthenticatedAprobadoPosRoute: AuthenticatedAprobadoPosRoute,
+  }
+
+const AuthenticatedAprobadoRouteRouteWithChildren =
+  AuthenticatedAprobadoRouteRoute._addFileChildren(
+    AuthenticatedAprobadoRouteRouteChildren,
+  )
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAprobadoRouteRoute: typeof AuthenticatedAprobadoRouteRouteWithChildren
+  AuthenticatedPendienteRoute: typeof AuthenticatedPendienteRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAprobadoRouteRoute: AuthenticatedAprobadoRouteRouteWithChildren,
+  AuthenticatedPendienteRoute: AuthenticatedPendienteRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
