@@ -1,10 +1,21 @@
 import { useState, type ChangeEvent } from "react";
 import { Pencil, Plus, Trash2 } from "lucide-react";
-import { UNIDADES, uid, money, type POSState, type Producto, type Receta, type Unidad } from "@/lib/pos-store";
+import { toast } from "sonner";
+import { UNIDADES, uid, money, type POSState, type Producto, type Receta, type Unidad, type UpdatePOS } from "@/lib/pos-store";
 import { cn } from "@/lib/utils";
 import { Btn, Card, Field, Input, Modal, Select } from "./ui";
 
-type Props = { state: POSState; update: (fn: (s: POSState) => POSState) => void };
+type Props = { state: POSState; update: UpdatePOS };
+
+async function guardar(update: UpdatePOS, cambio: (state: POSState) => POSState) {
+  try {
+    await update(cambio);
+    return true;
+  } catch (cause) {
+    toast.error(cause instanceof Error ? cause.message : "No se pudo guardar en Supabase.");
+    return false;
+  }
+}
 
 export function CatalogosView(props: Props) {
   const [sub, setSub] = useState<"cat" | "prod" | "bom">("prod");
@@ -29,11 +40,11 @@ function Categorias({ state, update }: Props) {
     <Card className="max-w-xl space-y-3">
       <form
         className="flex gap-2"
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
           if (!nuevo.trim()) return;
-          update((s) => ({ ...s, categorias: [...s.categorias, { id: uid(), nombre: nuevo.trim() }] }));
-          setNuevo("");
+          const categoria = { id: uid(), nombre: nuevo.trim() };
+          if (await guardar(update, (s) => ({ ...s, categorias: [...s.categorias, categoria] }))) setNuevo("");
         }}
       >
         <Input placeholder="Nueva categoría" value={nuevo} onChange={(e) => setNuevo(e.target.value)} />
@@ -45,13 +56,15 @@ function Categorias({ state, update }: Props) {
             {edit?.id === c.id ? (
               <>
                 <Input value={edit.nombre} onChange={(e) => setEdit({ ...edit, nombre: e.target.value })} />
-                <Btn onClick={() => { update((s) => ({ ...s, categorias: s.categorias.map((x) => (x.id === c.id ? { ...x, nombre: edit.nombre } : x)) })); setEdit(null); }}>Guardar</Btn>
+                <Btn onClick={async () => {
+                  if (await guardar(update, (s) => ({ ...s, categorias: s.categorias.map((x) => (x.id === c.id ? { ...x, nombre: edit.nombre } : x)) }))) setEdit(null);
+                }}>Guardar</Btn>
               </>
             ) : (
               <>
                 <span className="flex-1 font-medium">{c.nombre}</span>
                 <Btn variant="ghost" onClick={() => setEdit(c)}><Pencil className="size-4" /></Btn>
-                <Btn variant="ghost" className="text-destructive" onClick={() => update((s) => ({ ...s, categorias: s.categorias.filter((x) => x.id !== c.id) }))}><Trash2 className="size-4" /></Btn>
+                <Btn variant="ghost" className="text-destructive" onClick={() => void guardar(update, (s) => ({ ...s, categorias: s.categorias.filter((x) => x.id !== c.id) }))}><Trash2 className="size-4" /></Btn>
               </>
             )}
           </li>
@@ -69,14 +82,14 @@ const emptyProd = (catId: string): Producto => ({
 function Productos({ state, update }: Props) {
   const [form, setForm] = useState<Producto | null>(null);
   const cat = (id: string) => state.categorias.find((c) => c.id === id)?.nombre ?? "—";
-  const save = () => {
+  const save = async () => {
     if (!form || !form.nombre.trim()) return;
-    update((s) =>
+    const guardado = await guardar(update, (s) =>
       form.id
         ? { ...s, productos: s.productos.map((p) => (p.id === form.id ? form : p)) }
         : { ...s, productos: [...s.productos, { ...form, id: uid() }] },
     );
-    setForm(null);
+    if (guardado) setForm(null);
   };
   const num = (k: keyof Producto) => (e: ChangeEvent<HTMLInputElement>) => setForm((f) => f && { ...f, [k]: parseFloat(e.target.value) || 0 });
 
@@ -110,7 +123,7 @@ function Productos({ state, update }: Props) {
                 </td>
                 <td className="text-right">
                   <Btn variant="ghost" onClick={() => setForm(p)}><Pencil className="size-4" /></Btn>
-                  <Btn variant="ghost" className="text-destructive" onClick={() => update((s) => ({ ...s, productos: s.productos.filter((x) => x.id !== p.id), recetas: s.recetas.filter((r) => r.productoId !== p.id) }))}><Trash2 className="size-4" /></Btn>
+                  <Btn variant="ghost" className="text-destructive" onClick={() => void guardar(update, (s) => ({ ...s, productos: s.productos.filter((x) => x.id !== p.id), recetas: s.recetas.filter((r) => r.productoId !== p.id) }))}><Trash2 className="size-4" /></Btn>
                 </td>
               </tr>
             );
@@ -143,7 +156,7 @@ function Productos({ state, update }: Props) {
                 </label>
               ))}
             </div>
-            <Btn className="col-span-full mt-2" onClick={save}>Guardar</Btn>
+            <Btn className="col-span-full mt-2" onClick={() => void save()}>Guardar</Btn>
           </div>
         )}
       </Modal>
@@ -157,10 +170,9 @@ function Recetas({ state, update }: Props) {
   const nombre = (id: string) => state.productos.find((p) => p.id === id)?.nombre ?? "—";
   const sinReceta = state.productos.filter((p) => !state.recetas.some((r) => r.productoId === p.id));
 
-  const save = () => {
+  const save = async () => {
     if (!form?.productoId) return;
-    update((s) => ({ ...s, recetas: [...s.recetas.filter((r) => r.productoId !== form.productoId), form] }));
-    setForm(null);
+    if (await guardar(update, (s) => ({ ...s, recetas: [...s.recetas.filter((r) => r.productoId !== form.productoId), form] }))) setForm(null);
   };
   const setIng = (idx: number, patch: Partial<Receta["ingredientes"][number]>) =>
     setForm((f) => f && { ...f, ingredientes: f.ingredientes.map((x, i) => (i === idx ? { ...x, ...patch } : x)) });
@@ -182,7 +194,7 @@ function Recetas({ state, update }: Props) {
               </div>
               <div>
                 <Btn variant="ghost" onClick={() => { setIsNew(false); setForm(r); }}><Pencil className="size-4" /></Btn>
-                <Btn variant="ghost" className="text-destructive" onClick={() => update((s) => ({ ...s, recetas: s.recetas.filter((x) => x.productoId !== r.productoId) }))}><Trash2 className="size-4" /></Btn>
+                <Btn variant="ghost" className="text-destructive" onClick={() => void guardar(update, (s) => ({ ...s, recetas: s.recetas.filter((x) => x.productoId !== r.productoId) }))}><Trash2 className="size-4" /></Btn>
               </div>
             </div>
             <ul className="text-sm">
@@ -241,7 +253,7 @@ function Recetas({ state, update }: Props) {
                 <Plus className="size-4" />Agregar componente
               </Btn>
             </div>
-            <Btn className="w-full" onClick={save}>Guardar</Btn>
+            <Btn className="w-full" onClick={() => void save()}>Guardar</Btn>
           </div>
         )}
       </Modal>
