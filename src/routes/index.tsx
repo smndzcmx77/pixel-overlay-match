@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ChefHat, ClipboardList, Database, LayoutGrid, LoaderCircle, Package, RotateCcw, Sparkles } from "lucide-react";
+import { ChefHat, ClipboardList, Database, LayoutGrid, LoaderCircle, Package, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { seed } from "@/lib/pos-store";
@@ -9,7 +9,6 @@ import { cn } from "@/lib/utils";
 import { POSView } from "@/components/pos/POSView";
 import { OrdenesView } from "@/components/pos/OrdenesView";
 import { CatalogosView } from "@/components/pos/CatalogosView";
-import { AsistenteView } from "@/components/pos/AsistenteView";
 import { Btn, Card } from "@/components/pos/ui";
 
 export const Route = createFileRoute("/")({
@@ -30,7 +29,6 @@ const TABS = [
   { id: "pos", label: "POS", icon: LayoutGrid },
   { id: "ordenes", label: "Órdenes", icon: ClipboardList },
   { id: "catalogos", label: "Catálogos", icon: Package },
-  { id: "asistente", label: "Asistente", icon: Sparkles },
   { id: "kds", label: "Cocina", icon: ChefHat },
 ] as const;
 
@@ -112,8 +110,6 @@ function Index() {
           <OrdenesView state={state} update={update} />
         ) : tab === "catalogos" ? (
           <CatalogosView state={state} update={update} />
-        ) : tab === "asistente" ? (
-          <AsistenteView state={state} />
         ) : (
           <OrdenesView state={state} update={update} kds />
         )}
