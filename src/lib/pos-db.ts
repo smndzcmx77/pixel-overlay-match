@@ -76,7 +76,7 @@ export async function loadPOSFromSupabase(): Promise<POSSnapshot> {
       })),
     total: o.total,
     estado: o.estado as EstadoOrden,
-    metodoPago: (o.metodo_pago ?? undefined) as Orden["metodoPago"],
+    ...(o.metodo_pago ? { metodoPago: o.metodo_pago as NonNullable<Orden["metodoPago"]> } : {}),
   }));
 
   return {
