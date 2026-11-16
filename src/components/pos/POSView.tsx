@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { avisarBajos, money, pagarOrden, uid, type Alimento, type Orden, type POSState } from "@/lib/pos-store";
+import { avisarBajos, money, pagarOrden, uid, type Alimento, type Orden, type POSState, type UpdatePOS } from "@/lib/pos-store";
 import { cn } from "@/lib/utils";
 import { Btn, Card, Field, Select } from "./ui";
 import { PagoModal } from "./PagoModal";
 
-type Props = { state: POSState; update: (fn: (s: POSState) => POSState) => void };
+type Props = { state: POSState; update: UpdatePOS };
 
 export function POSView({ state, update }: Props) {
   const [cat, setCat] = useState<string>("all");
@@ -15,6 +15,7 @@ export function POSView({ state, update }: Props) {
   const [mesero, setMesero] = useState<"Mesero-1" | "Mesero-2">("Mesero-1");
   const [items, setItems] = useState<Alimento[]>([]);
   const [pago, setPago] = useState<Orden | null>(null);
+  const [guardando, setGuardando] = useState(false);
 
   const menu = state.productos.filter((p) => p.pos && (cat === "all" || p.categoriaId === cat));
   const cats = state.categorias.filter((c) => state.productos.some((p) => p.pos && p.categoriaId === c.id));
@@ -54,18 +55,43 @@ export function POSView({ state, update }: Props) {
     setParaLlevar(false);
   };
 
-  const ordenar = () => {
-    const o = crearOrden();
-    update((s) => ({ ...s, ordenes: [o, ...s.ordenes], siguienteNoOrden: s.siguienteNoOrden + 1 }));
-    toast.success(`Orden #${o.noOrden} enviada a cocina`);
-    reset();
+  const guardarNuevaOrden = async () => {
+    if (!items.length || guardando) return null;
+    const orden = crearOrden();
+    setGuardando(true);
+    try {
+      await update((s) => ({ ...s, ordenes: [orden, ...s.ordenes], siguienteNoOrden: s.siguienteNoOrden + 1 }));
+      reset();
+      return orden;
+    } catch (cause) {
+      toast.error(cause instanceof Error ? cause.message : "No se pudo guardar la orden.");
+      return null;
+    } finally {
+      setGuardando(false);
+    }
   };
 
-  const pagarAhora = () => {
-    const o = crearOrden();
-    update((s) => ({ ...s, ordenes: [o, ...s.ordenes], siguienteNoOrden: s.siguienteNoOrden + 1 }));
-    setPago(o);
-    reset();
+  const ordenar = async () => {
+    const orden = await guardarNuevaOrden();
+    if (orden) toast.success(`Orden #${orden.noOrden} enviada a cocina`);
+  };
+
+  const pagarAhora = async () => {
+    const orden = await guardarNuevaOrden();
+    if (orden) setPago(orden);
+  };
+
+  const confirmarPago = async (metodo: "efectivo" | "tarjeta") => {
+    if (!pago) return;
+    try {
+      const next = pagarOrden(state, pago.id, metodo);
+      await update(() => next);
+      toast.success(`Orden #${pago.noOrden} pagada y guardada`);
+      avisarBajos(state, next, (msg) => toast.warning(msg, { duration: 8000 }));
+      setPago(null);
+    } catch (cause) {
+      toast.error(cause instanceof Error ? cause.message : "No se pudo guardar el pago.");
+    }
   };
 
   return (
@@ -153,24 +179,12 @@ export function POSView({ state, update }: Props) {
           <span className="font-display text-2xl font-extrabold text-primary">{money(total)}</span>
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <Btn variant="outline" disabled={!items.length} onClick={ordenar}>Ordenar</Btn>
-          <Btn disabled={!items.length} onClick={pagarAhora}>Pago</Btn>
+          <Btn variant="outline" disabled={!items.length || guardando} onClick={() => void ordenar()}>{guardando ? "Guardando…" : "Ordenar"}</Btn>
+          <Btn disabled={!items.length || guardando} onClick={() => void pagarAhora()}>Pago</Btn>
         </div>
       </Card>
 
-      {pago && (
-        <PagoModal
-          orden={pago}
-          onClose={() => setPago(null)}
-          onConfirm={(m) => {
-            const next = pagarOrden(state, pago.id, m);
-            update(() => next);
-            toast.success(`Orden #${pago.noOrden} pagada`);
-            avisarBajos(state, next, (msg) => toast.warning(msg, { duration: 8000 }));
-            setPago(null);
-          }}
-        />
-      )}
+      {pago && <PagoModal orden={pago} onClose={() => setPago(null)} onConfirm={confirmarPago} />}
     </div>
   );
 }
