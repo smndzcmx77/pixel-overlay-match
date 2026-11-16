@@ -10,7 +10,7 @@ const alertaStockSchema = z.object({
 export const enviarAlertaStock = createServerFn({ method: "POST" })
   .inputValidator(alertaStockSchema)
   .handler(async ({ data }) => {
-    const webhookUrl = process.env.N8N_STOCK_ALERT_WEBHOOK_URL;
+    const webhookUrl = process.env["N8N_STOCK_ALERT_WEBHOOK_URL"];
     if (!webhookUrl) throw new Error("Falta configurar la URL del webhook de n8n.");
 
     const response = await fetch(webhookUrl, {
