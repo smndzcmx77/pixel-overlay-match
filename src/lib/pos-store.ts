@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { enviarAlertaStock } from "@/lib/stock-alert.functions";
 
 export const UNIDADES = ["g", "oz", "lb", "kg", "t", "L", "m³", "gal", "fl oz", "Unidades"] as const;
 export type Unidad = (typeof UNIDADES)[number];
