@@ -6,9 +6,8 @@ import { safeStaffRedirect } from "@/lib/staff-access";
 import { Btn, Card, Field, Input } from "@/components/pos/ui";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    redirect: typeof search.redirect === "string" ? search.redirect : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>) =>
+    typeof search["redirect"] === "string" ? { redirect: search["redirect"] } : {},
   head: () => ({
     meta: [
       { title: "Acceso del personal · Chilaquería" },
