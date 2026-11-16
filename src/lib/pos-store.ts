@@ -212,6 +212,16 @@ export function avisarBajos(prev: POSState, next: POSState, warn: (msg: string) 
           ? `¡"${p.nombre}" se agotó! (mínimo: ${p.minimoReorden} ${p.unidadMedida})`
           : `"${p.nombre}" llegó a su mínimo de reorden: ${p.disponible} ${p.unidadMedida} (mínimo: ${p.minimoReorden})`,
       );
+      void enviarAlertaStock({
+        data: {
+          nombre: p.nombre,
+          existenciaRestante: p.disponible,
+          minimoReorden: p.minimoReorden,
+        },
+      }).catch((error) => {
+        console.error(`No se pudo enviar la alerta de "${p.nombre}" a n8n:`, error);
+        warn(`No se pudo enviar la alerta de "${p.nombre}" a n8n.`);
+      });
     }
   }
 }
