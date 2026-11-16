@@ -18,6 +18,29 @@ type StreamChunk = {
   errorText?: string;
 };
 
+function TextoConNegritas({ texto }: { texto: string }) {
+  return texto.split(/(\*\*[^*]+\*\*)/g).map((parte, index) =>
+    parte.startsWith("**") && parte.endsWith("**") ? <strong key={index}>{parte.slice(2, -2)}</strong> : parte,
+  );
+}
+
+function RespuestaFormateada({ texto }: { texto: string }) {
+  return (
+    <div className="space-y-1 text-sm leading-7">
+      {texto.split("\n").map((linea, index) => {
+        if (!linea.trim()) return <div key={index} className="h-2" />;
+        const esViñeta = linea.startsWith("- ");
+        return (
+          <p key={index} className={esViñeta ? "flex gap-2" : undefined}>
+            {esViñeta && <span aria-hidden="true">•</span>}
+            <span><TextoConNegritas texto={esViñeta ? linea.slice(2) : linea} /></span>
+          </p>
+        );
+      })}
+    </div>
+  );
+}
+
 export function AsistenteView({ state }: Props) {
   const [pregunta, setPregunta] = useState("");
   const [respuesta, setRespuesta] = useState("");
