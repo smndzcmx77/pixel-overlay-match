@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Keep Lovable AI Gateway calls in server request handlers and stream OpenAI Responses through the AI SDK so credentials stay private and long answers remain responsive.
