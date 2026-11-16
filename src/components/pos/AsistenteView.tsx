@@ -195,7 +195,7 @@ export function AsistenteView({ state }: Props) {
           </details>
         )}
         {respuesta ? (
-          <div className="whitespace-pre-wrap text-sm leading-7">{respuesta}</div>
+          <RespuestaFormateada texto={respuesta} />
         ) : cargando ? (
           <div className="flex items-center gap-2 py-12 text-sm text-muted-foreground">
             <LoaderCircle className="size-4 animate-spin" /> Revisando ventas, existencias y recetas…
