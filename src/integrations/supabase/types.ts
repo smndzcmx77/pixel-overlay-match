@@ -317,18 +317,82 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          aprobado: boolean
+          created_at: string
+          id: string
+          nombre: string
+          puesto: string
+          updated_at: string
+        }
+        Insert: {
+          aprobado?: boolean
+          created_at?: string
+          id: string
+          nombre?: string
+          puesto?: string
+          updated_at?: string
+        }
+        Update: {
+          aprobado?: boolean
+          created_at?: string
+          id?: string
+          nombre?: string
+          puesto?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_approved_staff: { Args: never; Returns: boolean }
+      is_manager: { Args: never; Returns: boolean }
+      set_staff_approval: {
+        Args: { p_aprobado: boolean; p_profile_id: string }
+        Returns: undefined
+      }
       sync_pos_state: {
         Args: { p_expected_revision: number; p_state: Json }
         Returns: number
       }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "encargado"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -455,6 +519,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["encargado"],
+    },
   },
 } as const
