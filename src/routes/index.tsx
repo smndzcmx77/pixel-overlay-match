@@ -1,13 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { ChefHat, ClipboardList, LayoutGrid, Package, RotateCcw, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ChefHat, ClipboardList, Database, LayoutGrid, LoaderCircle, Package, RotateCcw, Sparkles } from "lucide-react";
+import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
-import { seed, usePOS } from "@/lib/pos-store";
+import { seed } from "@/lib/pos-store";
+import { usePOS } from "@/lib/use-pos";
 import { cn } from "@/lib/utils";
 import { POSView } from "@/components/pos/POSView";
 import { OrdenesView } from "@/components/pos/OrdenesView";
 import { CatalogosView } from "@/components/pos/CatalogosView";
 import { AsistenteView } from "@/components/pos/AsistenteView";
+import { Btn, Card } from "@/components/pos/ui";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -32,9 +35,23 @@ const TABS = [
 ] as const;
 
 function Index() {
-  const { state, update } = usePOS();
+  const { state, update, loading, saving, error, imported, retry } = usePOS();
   const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("pos");
   const pendientes = state?.ordenes.filter((o) => o.estado === "Pendiente Cocina").length ?? 0;
+
+  useEffect(() => {
+    if (imported) toast.success("Tus datos del navegador se importaron a Supabase.");
+  }, [imported]);
+
+  const restaurar = async () => {
+    if (!confirm("¿Restaurar datos demo en Supabase? Se perderán los cambios.")) return;
+    try {
+      await update(() => seed());
+      toast.success("Datos demo restaurados en Supabase");
+    } catch (cause) {
+      toast.error(cause instanceof Error ? cause.message : "No se pudieron restaurar los datos.");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background font-sans">
@@ -43,6 +60,10 @@ function Index() {
           <div className="mr-auto flex items-center gap-2">
             <span className="text-2xl">🌶️</span>
             <h1 className="font-display text-2xl font-extrabold tracking-tight text-primary">Chilaquería</h1>
+          </div>
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground" title="Datos centralizados en Supabase">
+            {saving ? <LoaderCircle className="size-3.5 animate-spin" /> : <Database className="size-3.5 text-success" />}
+            <span className="hidden md:inline">{saving ? "Guardando…" : "Supabase"}</span>
           </div>
           <nav className="flex gap-1 rounded-xl bg-muted p-1">
             {TABS.map((t) => (
@@ -64,16 +85,27 @@ function Index() {
           </nav>
           <button
             title="Restaurar datos demo"
-            onClick={() => confirm("¿Restaurar datos demo? Se perderán los cambios.") && update(() => seed())}
-            className="rounded-lg p-2 text-muted-foreground hover:bg-accent"
+            disabled={!state || saving}
+            onClick={() => void restaurar()}
+            className="rounded-lg p-2 text-muted-foreground hover:bg-accent disabled:opacity-50"
           >
             <RotateCcw className="size-4" />
           </button>
         </div>
       </header>
       <main className="mx-auto max-w-7xl px-4 py-6">
-        {!state ? (
-          <p className="py-16 text-center text-muted-foreground">Cargando…</p>
+        {error && state && <div className="mb-4 rounded-lg bg-destructive/10 p-3 text-sm text-destructive" role="alert">{error}</div>}
+        {loading || !state ? (
+          <Card className="mx-auto max-w-lg py-10 text-center">
+            {error ? (
+              <div className="space-y-4">
+                <p className="text-sm text-destructive" role="alert">{error}</p>
+                <Btn onClick={() => void retry()}>Reintentar conexión</Btn>
+              </div>
+            ) : (
+              <p className="flex items-center justify-center gap-2 text-muted-foreground"><LoaderCircle className="size-4 animate-spin" /> Cargando datos de Supabase…</p>
+            )}
+          </Card>
         ) : tab === "pos" ? (
           <POSView state={state} update={update} />
         ) : tab === "ordenes" ? (
