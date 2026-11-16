@@ -82,8 +82,10 @@ export function usePOS() {
     };
   }, [applySnapshot]);
 
+  const hasState = state !== null;
+
   useEffect(() => {
-    if (!state) return;
+    if (!hasState) return;
     let timer: ReturnType<typeof setTimeout> | undefined;
     const channel = supabase.channel(`pos-sync-${Math.random().toString(36).slice(2)}`);
     for (const table of REALTIME_TABLES) {
@@ -100,7 +102,7 @@ export function usePOS() {
       clearTimeout(timer);
       void supabase.removeChannel(channel);
     };
-  }, [load, state === null]);
+  }, [load, hasState]);
 
   const update: UpdatePOS = useCallback(async (fn) => {
     const previous = stateRef.current;
