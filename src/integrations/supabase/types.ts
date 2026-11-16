@@ -373,19 +373,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: boolean
-      }
-      is_approved_staff: { Args: never; Returns: boolean }
-      is_manager: { Args: never; Returns: boolean }
-      set_staff_approval: {
-        Args: { p_aprobado: boolean; p_profile_id: string }
-        Returns: undefined
-      }
       sync_pos_state: {
         Args: { p_expected_revision: number; p_state: Json }
         Returns: number
