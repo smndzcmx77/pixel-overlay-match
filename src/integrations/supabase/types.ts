@@ -370,7 +370,60 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      inventario_productos: {
+        Row: {
+          categoria: string | null
+          compra: boolean | null
+          disponible: number | null
+          minimo_reorden: number | null
+          producto: string | null
+          ruta: string | null
+          unidad_medida: string | null
+          workspace_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pos_productos_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "pos_workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      receta_ingredientes: {
+        Row: {
+          cantidad: number | null
+          ingrediente: string | null
+          receta: string | null
+          tipo: string | null
+          unidad_medida: string | null
+          workspace_id: string | null
+        }
+        Relationships: []
+      }
+      ventas_dia_ultimo_mes: {
+        Row: {
+          categoria: string | null
+          dias_cobertura_estimados: number | null
+          disponible: number | null
+          fecha_orden: string | null
+          minimo_reorden: number | null
+          producto: string | null
+          venta_diaria: number | null
+          venta_diaria_promedio: number | null
+          workspace_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pos_ordenes_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "pos_workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       sync_pos_state: {
