@@ -9,23 +9,29 @@ const alertaStockSchema = z.object({
   unidad_medida: z.string().trim().min(1).max(40),
 });
 
+export type AlertaStock = z.infer<typeof alertaStockSchema>;
+
+export function crearSolicitudAlertaStock(data: AlertaStock): RequestInit {
+  return {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      nombre: data.nombre,
+      categoria: data.categoria,
+      disponible: data.disponible,
+      minimo_reorden: data.minimo_reorden,
+      unidad_medida: data.unidad_medida,
+    }),
+  };
+}
+
 export const enviarAlertaStock = createServerFn({ method: "POST" })
   .inputValidator(alertaStockSchema)
   .handler(async ({ data }) => {
     const webhookUrl = process.env["N8N_STOCK_ALERT_WEBHOOK_URL"];
     if (!webhookUrl) throw new Error("Falta configurar la URL del webhook de n8n.");
 
-    const response = await fetch(webhookUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        nombre: data.nombre,
-        categoria: data.categoria,
-        disponible: data.disponible,
-        minimo_reorden: data.minimo_reorden,
-        unidad_medida: data.unidad_medida,
-      }),
-    });
+    const response = await fetch(webhookUrl, crearSolicitudAlertaStock(data));
 
     if (!response.ok) {
       const errorBody = await response.text();
