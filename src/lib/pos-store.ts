@@ -191,8 +191,10 @@ export function avisarBajos(prev: POSState, next: POSState, warn: (msg: string) 
       void enviarAlertaStock({
         data: {
           nombre: p.nombre,
-          existenciaRestante: p.disponible,
-          minimoReorden: p.minimoReorden,
+          categoria: next.categorias.find((c) => c.id === p.categoriaId)?.nombre ?? "Sin categoría",
+          disponible: p.disponible,
+          minimo_reorden: p.minimoReorden,
+          unidad_medida: p.unidadMedida,
         },
       }).catch((error) => {
         console.error(`No se pudo enviar la alerta de "${p.nombre}" a n8n:`, error);

@@ -3,8 +3,10 @@ import { z } from "zod";
 
 const alertaStockSchema = z.object({
   nombre: z.string().trim().min(1).max(160),
-  existenciaRestante: z.number().finite().min(-1_000_000_000).max(1_000_000_000),
-  minimoReorden: z.number().finite().min(0).max(1_000_000_000),
+  categoria: z.string().trim().min(1).max(160),
+  disponible: z.number().finite().min(-1_000_000_000).max(1_000_000_000),
+  minimo_reorden: z.number().finite().min(0).max(1_000_000_000),
+  unidad_medida: z.string().trim().min(1).max(40),
 });
 
 export const enviarAlertaStock = createServerFn({ method: "POST" })
@@ -18,8 +20,10 @@ export const enviarAlertaStock = createServerFn({ method: "POST" })
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         nombre: data.nombre,
-        existenciaRestante: data.existenciaRestante,
-        minimoReorden: data.minimoReorden,
+        categoria: data.categoria,
+        disponible: data.disponible,
+        minimo_reorden: data.minimo_reorden,
+        unidad_medida: data.unidad_medida,
       }),
     });
 

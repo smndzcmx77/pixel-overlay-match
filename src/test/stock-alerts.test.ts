@@ -11,21 +11,27 @@ describe("alertas de stock", () => {
     enviarAlertaStockMock.mockResolvedValue({ ok: true });
   });
 
-  it.each([9, 8])("envía a n8n los tres datos cuando Refresco baja a %s unidades", (existenciaRestante) => {
+  it.each([9, 8])("envía a n8n los cinco datos cuando Refresco baja a %s unidades", (disponible) => {
     const prev = {
       ...seed(),
       productos: seed().productos.map((p) => (p.id === "p6" ? { ...p, disponible: 11 } : p)),
     };
     const next = {
       ...prev,
-      productos: prev.productos.map((p) => (p.id === "p6" ? { ...p, disponible: existenciaRestante } : p)),
+      productos: prev.productos.map((p) => (p.id === "p6" ? { ...p, disponible } : p)),
     };
 
     avisarBajos(prev, next, vi.fn());
 
     expect(enviarAlertaStockMock).toHaveBeenCalledTimes(1);
     expect(enviarAlertaStockMock).toHaveBeenCalledWith({
-      data: { nombre: "Refresco", existenciaRestante, minimoReorden: 10 },
+      data: {
+        nombre: "Refresco",
+        categoria: "Bebidas",
+        disponible,
+        minimo_reorden: 10,
+        unidad_medida: "Unidades",
+      },
     });
   });
 
